@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style type="text/css">
+        canvas {
+            border: 1px solid black;
+        }
+
+        .myCanvas {
+            position: absolute;
+            display: none;
+            top: 0;
+            left: 0;
+            width: 1000px;
+            height: 500px;
+            border: 1px solid red;
+            background: transparent;
+            transform-style: preserve-3d;
+
+        }
+
+        .face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            transition: all 2s;
+        }
+
+        .d3box {
+            transform-style: preserve-3d;
+            transition: all 2s;
+            transform: rotateX(0deg) rotateY(0deg);
+        }
+
+        /* .d3box:hover {
+            transform: rotateX(-33.5deg) rotateY(45deg);
+        } */
+
+        .d3box:hover .face1 {
+            transform: rotateY(-90deg);
+        }
+
+        .d3box:hover .faceR {
+            transform: rotateY(90deg);
+        }
+
+        .d3box:hover .face5 {
+            transform: rotateX(90deg);
+
+        }
+
+        .d3box:hover .face4 {
+            transform: rotateY(90deg);
+
+        }
+
+        .d3box:hover .face6 {
+            transform: rotateX(-90deg);
+        }
+
+        .face1 {
+            left: 120px;
+            top: 120px;
+            background-color: red;
+            transform-origin: right;
+        }
+
+
+        .face2 {
+            left: 220px;
+            top: 120px;
+            background-color: blue;
+        }
+
+        .faceR {
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            left: 320px;
+            top: 120px;
+            transform-origin: left;
+            transition: all 2s;
+        }
+
+        .face3 {
+            top: 0;
+            left: 0;
+            background-color: white;
+            transform-origin: left;
+        }
+
+        .face4 {
+            top: 0;
+            left: 100px;
+            background-color: yellow;
+            transform-origin: left;
+
+        }
+
+        .face5 {
+            left: 220px;
+            top: 20px;
+            background-color: orangered;
+            transform-origin: bottom;
+        }
+
+        .face6 {
+            left: 220px;
+            top: 220px;
+            background-color: green;
+            transform-origin: top;
+        }
+    </style>
+    <script type="text/javascript">
+        function draw() {
+            drawFace(120, 120);
+            drawFace(220, 120);
+            drawFace(320, 120);
+            drawFace(420, 120);
+            drawFace(220, 20);
+            drawFace(220, 220);
+            setTimeout(() => {
+                document.getElementById('canvas').getContext('2d').clearRect(0, 0, 1000, 500);
+                myCanvas.style.display = 'block';
+
+                setTimeout(() => {
+                    d3box.style.transform = 'rotateX(-33.5deg) rotateY(45deg)';
+                }, 700);
+
+            }, 7777);
+        }
+        function drawFace(x, y) {
+            drawLine({ x: x, y: y }, 'toRight', 100)
+                .then(() => drawLine({ x: x + 100, y: y }, 'toBottom', 100))
+                .then(() => drawLine({ x: x + 100, y: y + 100 }, 'toLeft', 100))
+                .then(() => drawLine({ x: x, y: y + 100 }, 'toTop', 100))
+                .then(() => {
+                    makeColor({ x: x + 1, y: y + 1 });
+                })
+                .then(() => drawLine({ x: x, y: y + 100 / 3 }, 'toRight', 100))
+                .then(() => drawLine({ x: x, y: y + 100 / 3 * 2 }, 'toRight', 100))
+                .then(() => drawLine({ x: x + 100 / 3, y: y }, 'toBottom', 100))
+                .then(() => drawLine({ x: x + 100 / 3 * 2, y: y }, 'toBottom', 100));
+        }
+        function drawLine(start, type, len) {
+            return new Promise((resolve, reject) => {
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                let currentLen = 0;
+                let timer = setInterval(() => {
+                    currentLen += 10;
+
+                    if (currentLen >= len) {
+                        clearInterval(timer);
+                        resolve();
+                        // return;
+                    }
+                    ctx.strokeStyle = 'rgba(0,0,0,1)';
+                    ctx.beginPath();
+                    ctx.moveTo(start.x, start.y);
+
+                    switch (type) {
+                        case 'toRight':
+                            ctx.lineTo(start.x + 10, start.y);
+                            start.x += 10;
+                            break;
+                        case 'toBottom':
+                            ctx.lineTo(start.x, start.y + 10);
+                            start.y += 10;
+                            break;
+                        case 'toLeft':
+                            ctx.lineTo(start.x - 10, start.y);
+                            start.x -= 10;
+                            break;
+                        case 'toTop':
+                            ctx.lineTo(start.x, start.y - 10);
+                            start.y -= 10;
+                            break;
+
+                        default:
+                            break;
+                    }
+                    ctx.stroke();
+                }, 60);
+            });
+        }
+        function makeColor(start) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = `rgb(${Math.random() * 266},${Math.random() * 266},${Math.random() * 266})`;
+            ctx.fillRect(start.x, start.y, 98, 98);
+        }
+    </script>
+</head>
+
+<body onload="draw()" style="background: #ccc;position: relative;">
+    <div style="position: relative;">
+        <canvas id="canvas" width="1000" height="500"></canvas>
+        <div class="myCanvas" id="myCanvas">
+            <div class="d3box" id="d3box">
+                <div class="face face1"></div>
+                <div class="face face2"></div>
+                <div class="faceR" style="transform-style: preserve-3d">
+                    <div class="face face3"></div>
+                    <div class="face face4"></div>
+                </div>
+                <div class="face face5"></div>
+                <div class="face face6"></div>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>
