@@ -32,14 +32,29 @@
         }
 
         .d3box {
+            position: absolute;
+            top: 0;
+            left: 0;
             transform-style: preserve-3d;
-            transition: all 2s;
+            transition: transform 2s, top 0.5s linear 0s, left 0.5s linear 0s;
             transform: rotateX(0deg) rotateY(0deg);
+            width: 0;
+            transform-origin: 270px 270px -50px;
+        }
+
+        @keyframes run {
+            0% {
+                transform: rotateX(-33.5deg) rotateY(0deg);
+            }
+
+            100% {
+                transform: rotateX(-33.5deg) rotateY(360deg);
+            }
         }
 
         /* .d3box:hover {
-            transform: rotateX(-33.5deg) rotateY(45deg);
-        } */
+            animation: run 2s linear 2s infinite;
+        }
 
         .d3box:hover .face1 {
             transform: rotateY(-90deg);
@@ -61,7 +76,7 @@
 
         .d3box:hover .face6 {
             transform: rotateX(-90deg);
-        }
+        } */
 
         .face1 {
             left: 120px;
@@ -74,7 +89,7 @@
         .face2 {
             left: 220px;
             top: 120px;
-            background-color: blue;
+            background-color: white;
         }
 
         .faceR {
@@ -90,7 +105,7 @@
         .face3 {
             top: 0;
             left: 0;
-            background-color: white;
+            background-color: orangered;
             transform-origin: left;
         }
 
@@ -105,7 +120,7 @@
         .face5 {
             left: 220px;
             top: 20px;
-            background-color: orangered;
+            background-color: blue;
             transform-origin: bottom;
         }
 
@@ -115,32 +130,67 @@
             background-color: green;
             transform-origin: top;
         }
+
+        table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+            /* border: 1px solid #000; */
+            /* box-sizing: border-box; */
+        }
+
+        tbody {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        tr {
+            flex: 1;
+            display: flex;
+        }
+
+        td {
+            flex: 1;
+            border: 1px solid #000;
+            box-sizing: border-box;
+            border-collapse: collapse;
+        }
     </style>
     <script type="text/javascript">
         function draw() {
-            drawFace(120, 120);
-            drawFace(220, 120);
-            drawFace(320, 120);
-            drawFace(420, 120);
-            drawFace(220, 20);
-            drawFace(220, 220);
-            setTimeout(() => {
-                document.getElementById('canvas').getContext('2d').clearRect(0, 0, 1000, 500);
+            Promise.allSettled([
+                drawFace(120, 120, 'red'),
+                drawFace(220, 120, 'white'),
+                drawFace(320, 120, 'orangered'),
+                drawFace(420, 120, 'yellow'),
+                drawFace(220, 20, 'blue'),
+                drawFace(220, 220, 'green'),
+            ]).then(() => {
                 myCanvas.style.display = 'block';
+                document.getElementById('canvas').getContext('2d').clearRect(0, 0, 1000, 500);
 
                 setTimeout(() => {
                     d3box.style.transform = 'rotateX(-33.5deg) rotateY(45deg)';
-                }, 700);
 
-            }, 7777);
+                    d3box.style.animation = 'run 2s linear 2.5s infinite';
+                    d3box.children[0].style.transform = 'rotateY(-90deg)';
+                    d3box.children[2].style.transform = 'rotateY(90deg)';
+                    d3box.children[2].children[1].style.transform = 'rotateY(90deg)';
+                    d3box.children[3].style.transform = 'rotateX(90deg)';
+                    d3box.children[4].style.transform = 'rotateX(-90deg)';
+                    h3el.innerText = '点击右键可进行风骚走位';
+                }, 777);
+            });
         }
-        function drawFace(x, y) {
-            drawLine({ x: x, y: y }, 'toRight', 100)
+        function drawFace(x, y, color) {
+            return drawLine({ x: x, y: y }, 'toRight', 100)
                 .then(() => drawLine({ x: x + 100, y: y }, 'toBottom', 100))
                 .then(() => drawLine({ x: x + 100, y: y + 100 }, 'toLeft', 100))
                 .then(() => drawLine({ x: x, y: y + 100 }, 'toTop', 100))
                 .then(() => {
-                    makeColor({ x: x + 1, y: y + 1 });
+                    makeColor({ x: x + 1, y: y + 1 }, color);
                 })
                 .then(() => drawLine({ x: x, y: y + 100 / 3 }, 'toRight', 100))
                 .then(() => drawLine({ x: x, y: y + 100 / 3 * 2 }, 'toRight', 100))
@@ -186,14 +236,15 @@
                             break;
                     }
                     ctx.stroke();
-                }, 60);
+                }, 40);
             });
         }
-        function makeColor(start) {
+        function makeColor(start, color) {
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
 
-            ctx.fillStyle = `rgb(${Math.random() * 266},${Math.random() * 266},${Math.random() * 266})`;
+            // ctx.fillStyle = `rgb(${Math.random() * 266},${Math.random() * 266},${Math.random() * 266})`;
+            ctx.fillStyle = color;
             ctx.fillRect(start.x, start.y, 98, 98);
         }
     </script>
@@ -204,18 +255,145 @@
         <canvas id="canvas" width="1000" height="500"></canvas>
         <div class="myCanvas" id="myCanvas">
             <div class="d3box" id="d3box">
-                <div class="face face1"></div>
-                <div class="face face2"></div>
-                <div class="faceR" style="transform-style: preserve-3d">
-                    <div class="face face3"></div>
-                    <div class="face face4"></div>
+                <div class="face face1">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="face face5"></div>
-                <div class="face face6"></div>
+                <div class="face face2">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="faceR" style="transform-style: preserve-3d">
+                    <div class="face face3">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="face face4">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="face face5">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="face face6">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
+        <h3 id="h3el"></h3>
     </div>
+    <script>
+        myCanvas.oncontextmenu = (e) => {
+            e.preventDefault();
+            d3box.style.top = e.offsetY - 220 + 'px';
+            d3box.style.left = e.offsetX - 270 + 'px';
+        }
+    </script>
 </body>
 
 </html>
